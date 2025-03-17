@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务清单 - 登录</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/script.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-form {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #374151;
+        }
+
+        .form-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .login-form {
+                border-radius: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-brand">任务清单</div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-form">
+            <h2 class="form-title">登录</h2>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email" class="input-label">邮箱</label>
+                    <input type="email" id="email" class="input-field" placeholder="your@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password" class="input-label">密码</label>
+                    <div class="relative">
+                        <input type="password" id="password" class="input-field pr-10" placeholder="请输入密码" required>
+                        <button type="button"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-end mt-1">
+                        <a href="#" class="text-sm text-blue-500 hover:text-blue-700">忘记密码?</a>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button type="submit" class="w-full btn btn-primary py-3">登录</button>
+                </div>
+
+                <div class="form-footer">
+                    还没有账号? <a href="register.html" class="text-blue-500 hover:text-blue-700">注册</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="../app.html" class="back-link">
+                <i class="fas fa-arrow-left mr-1"></i> 返回主页
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 切换密码可见性
+            const togglePassword = document.querySelector('.toggle-password');
+            const passwordInput = document.getElementById('password');
+
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // 切换图标
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+
+            // 登录表单提交
+            const loginForm = document.getElementById('login-form');
+
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // 使用共享的认证服务
+                if (window.TodoApp && window.TodoApp.auth) {
+                    // 显示加载状态
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 登录中...';
+                    submitBtn.disabled = true;
+
+                    window.TodoApp.auth.login(email, password)
+                        .then(user => {
+                            console.log('登录成功:', user);
+                            window.location.href = '../app.html';
+                        })
+                        .catch(error => {
+                            console.error('登录失败:', error);
+                            alert('登录失败: ' + error.message);
+
+                            // 恢复按钮状态
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        });
+                } else {
+                    // 降级处理，如果共享服务不可用
+                    console.log('登录信息:', { email, password });
+
+                    // 模拟登录成功后跳转
+                    setTimeout(() => {
+                        window.location.href = '../app.html';
+                    }, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
